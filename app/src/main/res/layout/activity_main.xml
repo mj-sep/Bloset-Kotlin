@@ -21,7 +21,6 @@
         android:layout_height="wrap_content"
         android:alpha="0.7"
         android:animateLayoutChanges="true"
-        android:background="@android:color/white"
         app:layout_constraintEnd_toEndOf="@+id/view_finder"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/view_finder">
@@ -61,5 +60,55 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            app:srcCompat="@drawable/logowhite" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="132dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginBottom="158dp"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/camerarec" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="600dp"
+            android:fontFamily="@font/notosanskrmedium"
+            android:gravity="center_horizontal"
+            android:letterSpacing="0.03"
+            android:lineSpacingExtra="5sp"
+            android:text="영역 안에 옷이 꽉 차도록 조절하면\n 자동으로 촬영됩니다."
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            android:textStyle="normal" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="match_parent"
+                android:layout_height="63.1dp"
+                app:srcCompat="@drawable/hangericon" />
+        </RelativeLayout>
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

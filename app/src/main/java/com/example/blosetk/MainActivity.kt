@@ -4,8 +4,8 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Matrix
-import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.util.Size
@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import java.util.*
 import java.util.concurrent.Executors
+import kotlin.concurrent.timer
 
 
 private const val REQUEST_CODE_PERMISSIONS = 10
@@ -37,10 +38,21 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
     lateinit var currentCate: String
     var samelabeltest: Boolean = false // 같은 라벨인지 확인
     var labelteststatus: Boolean = false // 테스트 진행중인지
+    var isSpeak: Boolean = false // 음성 재생 중인지
+
     var firstlabel: String = ""
+    var secondlabel: String = ""
+    var thirdlabel: String = ""
+
     var dialogstr : String = "" // 다이얼로그 문장
+    var dialogcheck : Boolean = false // 다이얼로그 실행중인지
+    var faildialog : Boolean = false // 인식 실패 다이얼로그 실행중인지
+
     lateinit var tts: TextToSpeech
 
+    // 타이머 관련
+    private var time = 0
+    private var timerTask :Timer?=null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +63,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
         inferredCategoryText = findViewById(R.id.inferredCategoryText);
         inferredScoreText = findViewById(R.id.inferredScoreText);
         activateCameraBtn = findViewById(R.id.activateCameraBtn);
+
 
 
         // 카메라 동작 (버튼식 -> 자동)
@@ -71,6 +84,8 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
         currentCate = ""
         val t0: TimerTask = object : TimerTask() {
             override fun run() {
+                Log.d("실행중", "t0 실행중")
+                Log.d("labelarray size: ", labelarray.size.toString())
                 // 3초동안 동일한 라벨이어야 해당 라벨로 인정
                 labelarray.add(currentCate)
                 Log.d("labelarray", labelarray.toString())
@@ -82,21 +97,58 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
                 // 3초동안 동일한 라벨이어야 해당 라벨로 인정
                 labelarray.removeAt(0)
                 firstlabel = labelarray.get(0)
-                if(firstlabel == labelarray.get(1) && firstlabel == labelarray.get(2))
+                secondlabel = labelarray.get(1)
+                thirdlabel = labelarray.get(2)
+
+                if(firstlabel == secondlabel && firstlabel == thirdlabel && firstlabel.isNotEmpty())
                     samelabeltest = true
-                Log.d("labelarraytest", "$samelabeltest : $firstlabel")
-                if(samelabeltest == true && !firstlabel.equals("")) labelteststatus = true
+                Log.d("labelarraytest", "$samelabeltest : $secondlabel")
+                if(samelabeltest && !secondlabel.equals("") && !dialogcheck && !faildialog) {
+                    labelteststatus = true
+                    startdialog(secondlabel)
+                }
             }
         }
 
-        val t2: TimerTask = object : TimerTask() {
+        /* 타이머 작동
+        timerTask = timer(period = 100) {
+            time++
+            val sec = time / 10
+            Log.d("sec", sec.toString())
+            if(sec > 10 && labelarray.size > 3 && !samelabeltest && !faildialog) {
+                timerTask?.cancel()
+                Log.d("인식 실패 결과 호출", "타이머 3")
+                faildialog = true
+                val customDialog = CustomDialog(this@MainActivity)
+                runOnUiThread {
+                    customDialog.callFunction();
+                }
+                Log.d("TimerTask 작동 중지", "")
+            }
+        }
+
+         */
+
+        // 인식 실패 결과 호출할 타이머
+        val t3: TimerTask = object : TimerTask() {
             override fun run() {
-                // labelteststatus가 true이면 타이머 중지 후 팝업 다이얼로그 띄우기
-                if(labelteststatus == true) {
-                    labelteststatus = false
-                    t0.cancel()
-                    t1.cancel()
-                    startdialog(firstlabel)
+                if(labelarray.size > 3 && !samelabeltest && !faildialog) {
+                    Log.d("인식 실패 결과 호출", "타이머 3")
+                    faildialog = true
+                    val customDialog = CustomDialog(this@MainActivity)
+                    runOnUiThread {
+                        customDialog.callFunction();
+                    }
+                }
+            }
+        }
+
+        // 라벨이 잡혔을 때
+        val t4: TimerTask = object : TimerTask() {
+            override fun run() {
+                if(!secondlabel.equals("") && !thirdlabel.equals("") && !isSpeak && !dialogcheck) {
+                    isSpeak = true
+                    nearbyclothes()
                 }
             }
         }
@@ -105,20 +157,39 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
         val timer = Timer()
         timer.schedule(t0, 1000, 1000)
         timer.schedule(t1, 5000, 1000)
-        timer.schedule(t2, 5000, 1000)
+        timer.schedule(t3, 1000, 5000)
+        timer.schedule(t4, 3000, 1000)
 
     }
 
+    // 라벨이 잡혔을 때 - 근처에 있다고 재생
+    private fun nearbyclothes() {
+        if(isSpeak) {
+            speakOut("옷이 근처에 있습니다. 천천히 핸드폰을 움직여주세요.")
+        }
+    }
+
+
     // 의류 정보 다이얼로그 -> 추후 커스텀으로 변경
-    private fun startdialog(firstlabel: String) {
-        runOnUiThread {
-            dialogstr = "촬영한 의류는 $firstlabel 입니다."
-            var builder = AlertDialog.Builder(this@MainActivity)
-            builder.setTitle("의류 정보")
-            builder.setMessage("$dialogstr")
-            builder.setIcon(R.mipmap.ic_launcher)
-            builder.show()
-            speakOut(dialogstr)
+    private fun startdialog(label: String) {
+        if(labelteststatus && !dialogcheck) {
+            labelteststatus = false
+            dialogcheck = true
+            runOnUiThread {
+                dialogstr = "촬영한 의류는 $label 입니다."
+                var builder = AlertDialog.Builder(this@MainActivity)
+                builder.setTitle("의류 정보")
+                builder.setMessage("$dialogstr")
+                builder.setIcon(R.mipmap.icon)
+                builder.setPositiveButton("확인") { dialogstr, i ->
+                    Log.d("다이얼로그 확인", "OK")
+                    Handler().postDelayed({
+                        dialogcheck = false
+                    }, 5000) // 5초 정도 딜레이를 준 후 시작
+                }
+                builder.show()
+                speakOut(dialogstr)
+            }
         }
     }
 
@@ -153,7 +224,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             override fun getAnalyzeResult(inferredCategory: String, score: Float) {
                 // Change the view from other than the main thread
                 viewFinder.post {
-                    inferredCategoryText.text = "인식 결과는 $inferredCategory 입니다."
+                    inferredCategoryText.text = "$inferredCategory"
                     inferredScoreText.text = "Score: $score"
                 }
                 currentCate = inferredCategory
@@ -232,6 +303,11 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             }
         })
     }
+
+
+
+
+
 }
 
 

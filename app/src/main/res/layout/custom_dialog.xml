@@ -1,33 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginRight="25dp"
+            android:backgroundTint="#FFFFFFFF"
+            app:srcCompat="@drawable/image_failure_x" />
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/text"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text="Dress"
-        android:textAlignment="center"
-        android:textSize="22dp"
-        android:textStyle="bold"
-        android:layout_marginTop="200dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/closeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:text="닫기"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text" />
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="50dp"
+        android:fontFamily="@font/notosanskrbold"
+        android:letterSpacing="0.03"
+        android:lineSpacingExtra="5sp"
+        android:text="사진 인식이 완료되었어요!"
+        android:textColor="#202020"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="75dp"
+        android:fontFamily="@font/notosanskrbold"
+        android:letterSpacing="0.03"
+        android:lineSpacingExtra="5sp"
+        android:text="다시 촬영하시겠습니까?"
+        android:textColor="#202020"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="205dp"
+            android:layout_height="278dp"
+            app:srcCompat="@drawable/successimage" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="420dp"
+        android:fontFamily="@font/notosanskrmedium"
+        android:gravity="center_horizontal"
+        android:letterSpacing="0.04"
+        android:lineSpacingExtra="6sp"
+        android:text="흰색, Top 등 \n학습한 데이터를 바탕으로 분석된 결과"
+        android:textAlignment="center"
+        android:textColor="#202020"
+        android:textSize="14sp"
+        android:textStyle="normal" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="500dp"
+        android:gravity="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/fail_ok_btn"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:background="@drawable/rectangle_7"></ImageButton>
+
+            <ImageButton
+                android:id="@+id/fail_no_btn"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:background="@drawable/rectangle_8"></ImageButton>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notosanskrmedium"
+            android:gravity="center_horizontal"
+            android:letterSpacing="0.03"
+            android:lineSpacingExtra="5sp"
+            android:text="아니오, 괜찮습니다"
+            android:textAlignment="center"
+            android:textColor="#6c83be  "
+            android:textSize="15sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notosanskrmedium"
+            android:gravity="center_horizontal"
+            android:letterSpacing="0.03"
+            android:lineSpacingExtra="5sp"
+            android:text="네 알겠습니다."
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:textSize="15sp"
+            android:textStyle="normal" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="31dp"
+        android:layout_marginTop="350dp"
+        android:orientation="vertical"></LinearLayout>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
