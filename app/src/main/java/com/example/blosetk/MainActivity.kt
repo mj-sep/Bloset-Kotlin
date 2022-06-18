@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
 
     // 타이머 관련
     private var time = 0
-    private var timerTask :Timer?=null
+    private var timerTask : Timer? =null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,10 +110,10 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             }
         }
 
-        /* 타이머 작동
+        // 타이머 작동
         timerTask = timer(period = 100) {
             time++
-            val sec = time / 10
+            val sec = time / 15
             Log.d("sec", sec.toString())
             if(sec > 10 && labelarray.size > 3 && !samelabeltest && !faildialog) {
                 timerTask?.cancel()
@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             }
         }
 
-         */
+
 
         // 인식 실패 결과 호출할 타이머
         val t3: TimerTask = object : TimerTask() {
@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
         val timer = Timer()
         timer.schedule(t0, 1000, 1000)
         timer.schedule(t1, 5000, 1000)
-        timer.schedule(t3, 1000, 5000)
+       // timer.schedule(t3, 1000, 10000)
         timer.schedule(t4, 3000, 1000)
 
     }

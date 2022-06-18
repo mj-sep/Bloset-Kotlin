@@ -17,7 +17,7 @@ class ImageAnalyze(context: Context) : ImageAnalysis.Analyzer {
     private lateinit var listener: OnAnalyzeListener    //Custom listener for updating View
     private var lastAnalyzedTimestamp = 0L
     // 모바일 모듈 로딩
-    private val resnet = LiteModuleLoader.load(getAssetFilePath(context, "deeplabv3617_scripted.ptl"))
+    private val resnet = LiteModuleLoader.load(getAssetFilePath(context, "deeplabv3618_scripte.ptl"))
     //var module = Module.load(assetFilePath(this, "model.ptl"))
 
 

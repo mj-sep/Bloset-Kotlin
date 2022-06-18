@@ -28,6 +28,9 @@ class CustomDialog(context: Context) {
     }
 
     private lateinit var onbackListener: backlistener
+    fun initbackListener(param: backlistener): Unit {
+        this.onbackListener = onbackListener
+    }
 
 
     // 호출할 다이얼로그 함수를 정의한다.
@@ -50,7 +53,7 @@ class CustomDialog(context: Context) {
 
         // 커스텀 다이얼로그의 각 위젯들을 정의한다.
         val failuredialog: RelativeLayout = dlg.findViewById<View>(R.id.failure_dialog) as RelativeLayout
-
+        val closebtn: ImageButton = dlg.findViewById<View>(R.id.failure_close_btn) as ImageButton
         speakOut("인식에 실패했습니다. 다시 촬영하시겠습니까? 10초 후 메인 화면으로 넘어갑니다. 앱을 종료하시려면 화면을 터치해주세요.")
 
         // 타이머 작동
@@ -59,7 +62,7 @@ class CustomDialog(context: Context) {
             val sec = time / 100
             if(sec > 20) {
                 timerTask?.cancel()
-                onbackListener.onBack(true)
+                // onbackListener.onBack(true)
                 dlg.dismiss()
             }
         }
@@ -68,6 +71,11 @@ class CustomDialog(context: Context) {
         failuredialog.setOnClickListener(View.OnClickListener {
             dlg.dismiss()
             exitProcess(0)
+        })
+
+        // 닫기 버튼
+        closebtn.setOnClickListener(View.OnClickListener {
+            dlg.dismiss()
         })
 
     }
