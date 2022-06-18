@@ -17,7 +17,7 @@ class ImageAnalyze(context: Context) : ImageAnalysis.Analyzer {
     private lateinit var listener: OnAnalyzeListener    //Custom listener for updating View
     private var lastAnalyzedTimestamp = 0L
     // 모바일 모듈 로딩
-    private val resnet = LiteModuleLoader.load(getAssetFilePath(context, "deeplabv3618_scripte.ptl"))
+    private val resnet = LiteModuleLoader.load(getAssetFilePath(context, "deeplabv3_scripte.ptl"))
     //var module = Module.load(assetFilePath(this, "model.ptl"))
 
 
@@ -58,8 +58,6 @@ class ImageAnalyze(context: Context) : ImageAnalysis.Analyzer {
 
             // 범위 내의 카테고리 이름
             Log.d("score", Arrays.toString(scores));
-            Log.d("maxscoreIdx", maxScoreIdx.toString())
-
             val inferredCategory = ImageNetClasses().IMAGENET_CLASSES[maxScoreIdx]
 
             // score가 3.0 이상인 경우만 해당 라벨로 인식

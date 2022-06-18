@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/successdialog"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -62,9 +63,10 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/success_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="420dp"
+        android:layout_marginTop="425dp"
         android:fontFamily="@font/notosanskrmedium"
         android:gravity="center_horizontal"
         android:letterSpacing="0.04"
@@ -72,7 +74,7 @@
         android:text="흰색, Top 등 \n학습한 데이터를 바탕으로 분석된 결과"
         android:textAlignment="center"
         android:textColor="#202020"
-        android:textSize="14sp"
+        android:textSize="12dp"
         android:textStyle="normal" />
 
     <RelativeLayout
@@ -87,47 +89,48 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/fail_ok_btn"
+            <ImageView
+                android:id="@+id/imageView6"
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
+                android:layout_height="68dp"
                 android:layout_marginLeft="25dp"
                 android:layout_marginRight="25dp"
-                android:background="@drawable/rectangle_7"></ImageButton>
+                android:background="@drawable/rectangle_8" />
 
-            <ImageButton
-                android:id="@+id/fail_no_btn"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginLeft="25dp"
-                android:layout_marginRight="25dp"
-                android:background="@drawable/rectangle_8"></ImageButton>
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="5sp"
+            android:layout_marginRight="25dp"
             android:fontFamily="@font/notosanskrmedium"
             android:gravity="center_horizontal"
             android:letterSpacing="0.03"
             android:lineSpacingExtra="5sp"
-            android:text="아니오, 괜찮습니다"
+            android:paddingTop="5sp"
+            android:text="* 다시 촬영하시려면 화면을 터치해주세요."
             android:textAlignment="center"
             android:textColor="#6c83be  "
-            android:textSize="15sp"
+            android:textSize="10sp"
             android:textStyle="normal" />
 
         <TextView
+            android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="25sp"
+            android:layout_marginTop="25sp"
+            android:layout_marginRight="25sp"
             android:fontFamily="@font/notosanskrmedium"
             android:gravity="center_horizontal"
             android:letterSpacing="0.03"
             android:lineSpacingExtra="5sp"
-            android:text="네 알겠습니다."
+            android:text="앱을 종료하시려면 화면을 길게 터치해주세요."
             android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textSize="15sp"
+            android:textColor="#6c83be  "
+            android:textSize="10sp"
             android:textStyle="normal" />
 
     </RelativeLayout>
@@ -135,8 +138,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="31dp"
-        android:layout_marginTop="350dp"
-        android:orientation="vertical"></LinearLayout>
+        android:layout_marginTop="580dp"
+        android:orientation="vertical">
+
+    </LinearLayout>
 
 
 </RelativeLayout>

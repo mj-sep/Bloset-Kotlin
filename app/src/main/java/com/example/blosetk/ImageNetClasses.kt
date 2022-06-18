@@ -2,10 +2,13 @@ package com.example.blosetk
 
 class ImageNetClasses {
     var IMAGENET_CLASSES = arrayOf(
-
-        "Bottom",
+//        "Bottom",
+//        "Dress",
+//        "Outer",
+//        "Top"
+        "Coat",
         "Dress",
-        "Outer",
-        "Top"
+        "T-Shirt,Top",
+        "Trouser"
     )
 }
