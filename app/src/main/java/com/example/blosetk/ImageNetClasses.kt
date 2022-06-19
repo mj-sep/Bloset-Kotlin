@@ -6,9 +6,9 @@ class ImageNetClasses {
 //        "Dress",
 //        "Outer",
 //        "Top"
-        "Coat",
-        "Dress",
-        "T-Shirt,Top",
-        "Trouser"
+        "외투",
+        "원피스",
+        "상의",
+        "바지"
     )
 }

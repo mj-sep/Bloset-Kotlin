@@ -4,8 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -22,8 +22,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.opencsv.CSVReader
+import java.io.BufferedReader
 import java.io.File
-import java.io.IOException
+import java.io.InputStreamReader
+import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.concurrent.timer
@@ -61,6 +64,8 @@ class MainActivity : AppCompatActivity() {
 
     private var tts: TextToSpeech? = null
     private var savedUri: Uri? = null
+    private lateinit var bitmap: Bitmap
+
 
     // 타이머 관련
     private var time = 0
@@ -224,9 +229,9 @@ class MainActivity : AppCompatActivity() {
             dialogcheck = 1
             runOnUiThread {
                 savedUri?.let { customDialog2.callFunction(label, it) };
-                // 값을 넘겨 받아야 여기서 faildialog false로 변경해줄 수 있음.
                 customDialog2.setOnClickedListener(object: CustomDialogSuccess.ButtonClickListener {
                     override fun onClicked(status: Int) {
+                        faildialog = false
                         labelteststatus = false
                         dialogcheck = 0
                         samelabeltest = false
@@ -292,6 +297,7 @@ class MainActivity : AppCompatActivity() {
                        // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                        Log.d("CameraXApp", msg)
                        Log.d("savedUri", savedUri.toString())
+                       // extracthex()
                        startdialog(secondlabel)
                    }
                })
@@ -326,44 +332,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-
-    /*
-    private fun takePhoto() {
-        val imageCapture = imageCapture ?: return
-
-        // 사진 저장 장소
-        val photoFile = File(
-            outputDirectory,
-            SimpleDateFormat(FILENAME_FORMAT, Locale.US)
-                .format(System.currentTimeMillis()) + ".jpg"
-        )
-
-        // outputFile의 Configuration을 담당
-        val outputOptions = ImageCapture
-            .OutputFileOptions
-            .Builder(photoFile)
-            .build()
-
-        imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageSavedCallback {
-                // 사진을 찍고 어떻게 저장할 지에 대한 구현부
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val savedUri = Uri.fromFile(photoFile)
-                    val message = "Photo capture succeeded: $savedUri"
-                    Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, message)
-                }
-
-                override fun onError(exception: ImageCaptureException) {
-                    Log.e(TAG, "Photo capture failed: ${exception.message}", exception)
-                }
-            }
-        )
-    }
-     */
     private fun updateTransform() {
         val matrix = Matrix()
         val centerX = viewFinder.width / 2f
@@ -458,6 +426,7 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
 
 }
 

@@ -15,6 +15,10 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.*
+import com.opencsv.CSVReader
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.URL
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -72,10 +76,13 @@ class CustomDialogSuccess(context: Context) {
 
         // 최종 헥사값
         val pixel_hex = "#" + hex.substring(2 until 8)
+        /*
+        Thread {
+        }.start()
+         */
 
-
-        successtext.setText("$pixel_hex, $text 등 \n학습한 데이터를 바탕으로 분석된 결과입니다.")
-        speakOut(successtext.text.toString() + "다시 촬영하시려면 화면을 짧게 터치해주세요. 앱을 종료하시려면 화면을 길게 터치해주세요.")
+        successtext.setText("인식 결과, $pixel_hex $text" + "로 추정됩니다.")
+        speakOut(successtext.text.toString() + "다시 촬영하시려면 화면을 짧게, 앱을 종료하시려면 길게 터치해주세요.")
 
         // 짧게 터치하면 다이얼로그만 종료 -> 카메라로 돌아감
         successdialog.setOnClickListener{
@@ -100,23 +107,6 @@ class CustomDialogSuccess(context: Context) {
         })
     }
 
-    fun getBitmapFromView(view: View, activity: Activity, callback: (Bitmap) -> Unit) {
-        activity.window?.let { window ->
-            val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-            val locationOfViewInWindow = IntArray(2)
-            view.getLocationInWindow(locationOfViewInWindow)
-            try {
-                PixelCopy.request(window, Rect(locationOfViewInWindow[0], locationOfViewInWindow[1], locationOfViewInWindow[0] + view.width, locationOfViewInWindow[1] + view.height), bitmap, { copyResult ->
-                    if (copyResult == PixelCopy.SUCCESS) {
-                        callback(bitmap)
-                    }
-                    // possible to handle other result codes ...
-                }, Handler())
-            } catch (e: IllegalArgumentException) {
-                // PixelCopy may throw IllegalArgumentException, make sure to handle it
-                e.printStackTrace()
-            }
-        }
-    }
+
 
 }

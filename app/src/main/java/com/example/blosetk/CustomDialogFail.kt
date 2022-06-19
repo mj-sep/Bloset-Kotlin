@@ -54,7 +54,7 @@ class CustomDialogFail(context: Context) {
         // 커스텀 다이얼로그의 각 위젯들을 정의한다.
         val failuredialog: RelativeLayout = dlg.findViewById<View>(R.id.failure_dialog) as RelativeLayout
         val closebtn: ImageButton = dlg.findViewById<View>(R.id.failure_close_btn) as ImageButton
-        speakOut("인식에 실패했습니다. 다시 촬영하시겠습니까? 다시 촬영하시려면 화면을 짧게 터치해주세요. 앱을 종료하시려면 화면을 길게 터치해주세요.")
+        speakOut("인식에 실패했습니다. 다시 촬영하시겠습니까? 다시 촬영하시려면 화면을 짧게, 앱을 종료하시려면 길게 터치해주세요.")
 
 //        // 타이머 작동
 //        timerTask = timer(period = 10) {
