@@ -55,9 +55,10 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/imageView5"
+            android:id="@+id/clothingimage"
             android:layout_width="205dp"
             android:layout_height="278dp"
+            android:scaleType="fitCenter"
             app:srcCompat="@drawable/successimage" />
 
     </LinearLayout>

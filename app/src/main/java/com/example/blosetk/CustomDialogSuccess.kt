@@ -3,7 +3,9 @@ package com.example.blosetk
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color
+import android.net.Uri
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager
@@ -33,7 +35,7 @@ class CustomDialogSuccess(context: Context) {
     }
 
     // 호출할 다이얼로그 함수를 정의한다.
-    fun callFunction(text: String) {
+    fun callFunction(text: String, url: Uri) {
 
         // 커스텀 다이얼로그를 정의하기위해 Dialog클래스를 생성한다.
         val dlg = Dialog(context)
@@ -53,7 +55,10 @@ class CustomDialogSuccess(context: Context) {
         // 커스텀 다이얼로그의 각 위젯들을 정의한다.
         val successdialog: RelativeLayout = dlg.findViewById<View>(R.id.successdialog) as RelativeLayout
         val successtext: TextView = dlg.findViewById<View>(R.id.success_text) as TextView
+        val clothingimg: ImageView = dlg.findViewById<View>(R.id.clothingimage) as ImageView
 
+        // 이미지 분석 결과 다이얼로그에 띄움
+        clothingimg.setImageURI(url)
         successtext.setText("흰색, $text 등 \n학습한 데이터를 바탕으로 분석된 결과입니다.")
         speakOut(successtext.text.toString() + "다시 촬영하시려면 화면을 짧게 터치해주세요. 앱을 종료하시려면 화면을 길게 터치해주세요.")
 

@@ -2,46 +2,31 @@ package com.example.blosetk
 
 import android.Manifest
 import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.speech.tts.TextToSpeech
-import android.text.format.DateFormat
 import android.util.Log
-import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import android.view.TextureView
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.concurrent.timer
-import android.os.Handler
-import android.os.HandlerThread
-import java.nio.ByteBuffer
-import java.util.concurrent.TimeUnit
 
 
 private const val REQUEST_CODE_PERMISSIONS = 10
@@ -71,15 +56,19 @@ class MainActivity : AppCompatActivity() {
 
     var dialogcheck : Int = 0 // 다이얼로그 실행중 아님 - 0, 실행 중 - 1
     var faildialog : Boolean = false // 인식 실패 다이얼로그 실행중인지, 아님 - 0, 실행 중 -1
+    var takescreen : Boolean = false // 사진 촬영 안함 - 0, 함 - 1
+
 
     private var tts: TextToSpeech? = null
-
+    private var savedUri: Uri? = null
 
     // 타이머 관련
     private var time = 0
     private var timerTask : Timer? =null
     private var time2 = 0
     private var timerTask2 : Timer? =null
+    private var timerTask3 : Timer? =null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,8 +126,7 @@ class MainActivity : AppCompatActivity() {
                     // screenshot(viewFinder)
                     // takeScreenshot()
                     // takeScreenShot(getWindow().getDecorView());
-                    takeScreenShot(window.decorView)
-                    startdialog(secondlabel)
+                    takescreen = true
                 }
             }
         }
@@ -235,7 +223,7 @@ class MainActivity : AppCompatActivity() {
         if(labelteststatus && dialogcheck == 0) {
             dialogcheck = 1
             runOnUiThread {
-                customDialog2.callFunction(secondlabel);
+                savedUri?.let { customDialog2.callFunction(label, it) };
                 // 값을 넘겨 받아야 여기서 faildialog false로 변경해줄 수 있음.
                 customDialog2.setOnClickedListener(object: CustomDialogSuccess.ButtonClickListener {
                     override fun onClicked(status: Int) {
@@ -251,91 +239,6 @@ class MainActivity : AppCompatActivity() {
 
 
     }
-
-
-    // 화면 캡처 stack
-    open fun takeScreenShot(view: View) {
-        val date = Date()
-        val format = DateFormat.format("MM-dd-yyyy-hh:mm:ss", date)
-        try {
-            val mainDir = File(
-                getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FilShare"
-            )
-            if (!mainDir.exists()) {
-                val mkdir = mainDir.mkdir()
-            }
-            val path = "$mainDir/TrendOceans-$format.jpeg"
-            view.isDrawingCacheEnabled = true
-            val bitmap = Bitmap.createBitmap(view.drawingCache)
-            view.isDrawingCacheEnabled = false
-            val imageFile = File(path)
-            val fileOutputStream = FileOutputStream(imageFile)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 90, fileOutputStream)
-            fileOutputStream.flush()
-            fileOutputStream.close()
-            shareScreenShot(imageFile)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
-
-    //Share ScreenShot
-    private fun shareScreenShot(imageFile: File) {
-
-        //Using sub-class of Content provider
-        /*val uri: Uri = FileProvider.getUriForFile(
-            this,
-            BuildConfig.APPLICATION_ID + "." + localClassName + ".provider",
-            imageFile
-        )
-
-         */
-
-        val uri: Uri = FileProvider.getUriForFile(Objects.requireNonNull(getApplicationContext()),
-            BuildConfig.APPLICATION_ID + ".provider", imageFile);
-        Log.d("file url", uri.toString())
-
-        //Explicit intent
-        val intent = Intent()
-        intent.action = Intent.ACTION_SEND
-        intent.type = "image/*"
-        intent.putExtra(Intent.EXTRA_TEXT, "This is Sample App to take ScreenShot")
-        intent.putExtra(Intent.EXTRA_STREAM, uri)
-
-        //It will show the application which are available to share Image; else Toast message will throw.
-        try {
-            this.startActivity(Intent.createChooser(intent, "Share With"))
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(this, "No App Available", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-
-    // 화면 캡쳐하기
-    @Throws(Exception::class)
-    open fun screenshot(view: View) {
-        view.isDrawingCacheEnabled = true
-        val screenshot: Bitmap = view.getDrawingCache()
-
-
-        val filename = "screenshot2.png"
-        try {
-            val f = File(Environment.getExternalStorageDirectory(), filename)
-            f.createNewFile()
-            val outStream: OutputStream = FileOutputStream(f)
-            screenshot.compress(Bitmap.CompressFormat.PNG, 100, outStream)
-            outStream.close()
-
-            // byteArray로 저장?
-            // val fileContent: ByteArray = Files.readAllBytes(f.toPath())
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        view.isDrawingCacheEnabled = false
-    }
-
-
 
 
     private fun startCamera() {
@@ -360,33 +263,40 @@ class MainActivity : AppCompatActivity() {
         val imageCaptureConfig = ImageCaptureConfig.Builder()
             .apply {
                 setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
+
             }.build()
 
         val imageCapture = ImageCapture(imageCaptureConfig)
+
         val file = File(externalMediaDirs.first(), "${System.currentTimeMillis()}.jpg")
 
-        findViewById<Button>(R.id.capture_button).setOnClickListener {
-            imageCapture.takePicture(file, executor, object : ImageCapture.OnImageSavedListener {
-                override fun onError(
-                    error: ImageCapture.ImageCaptureError,
-                    message: String,
-                    exc: Throwable?
-                ) {
-                    val msg = "Photo capture failed: $message"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                    Log.e("CameraXApp", msg)
-                    exc?.printStackTrace()
-                }
 
-                override fun onImageSaved(file: File) {
-                    val msg = "사진 경로 : ${file.absolutePath}"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                    Log.d("CameraXApp", msg)
-                }
-            })
+        timerTask3 = timer(period = 100) {
+           if(takescreen) {
+               takescreen = false
+               imageCapture.takePicture(file, executor, object : ImageCapture.OnImageSavedListener {
+                   override fun onError(
+                       error: ImageCapture.ImageCaptureError,
+                       message: String,
+                       exc: Throwable?
+                   ) {
+                       val msg = "Photo capture failed: $message"
+                       // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                       Log.e("CameraXApp", msg)
+                       exc?.printStackTrace()
+                   }
+
+                   override fun onImageSaved(file: File) {
+                       savedUri = Uri.fromFile(file)
+                       val msg = "사진 경로 : ${file.absolutePath}"
+                       // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                       Log.d("CameraXApp", msg)
+                       Log.d("savedUri", savedUri.toString())
+                       startdialog(secondlabel)
+                   }
+               })
+           }
         }
-
-        //사진찍기 설정 끝
 
         //Implementation of preview useCase
         val analyzerConfig = ImageAnalysisConfig.Builder().apply {
@@ -414,6 +324,8 @@ class MainActivity : AppCompatActivity() {
         //useCase is preview and image analysis
         CameraX.bindToLifecycle(this, preview, imageCapture, analyzerUseCase)
     }
+
+
 
 
     /*
