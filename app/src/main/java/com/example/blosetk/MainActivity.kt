@@ -2,27 +2,35 @@ package com.example.blosetk
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.speech.tts.TextToSpeech
 import android.text.format.DateFormat
 import android.util.Log
+import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -30,6 +38,10 @@ import java.io.OutputStream
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.concurrent.timer
+import android.os.Handler
+import android.os.HandlerThread
+import java.nio.ByteBuffer
+import java.util.concurrent.TimeUnit
 
 
 private const val REQUEST_CODE_PERMISSIONS = 10
@@ -122,12 +134,15 @@ class MainActivity : AppCompatActivity() {
                 if(samelabeltest && !secondlabel.equals("") && !thirdlabel.equals("") && dialogcheck == 0 && !faildialog) {
                     Log.d("labelarraystatus", labelteststatus.toString())
                     labelteststatus = true
-                    screenshot(viewFinder)
+                    // screenshot(viewFinder)
                     // takeScreenshot()
+                    // takeScreenShot(getWindow().getDecorView());
+                    takeScreenShot(window.decorView)
                     startdialog(secondlabel)
                 }
             }
         }
+
 
         // 타이머 작동
         timerTask = timer(period = 1000) {
@@ -211,22 +226,8 @@ class MainActivity : AppCompatActivity() {
         Log.d("nearspeakout", "true")
     }
 
-    // 저장소 권한 부여
-    fun verifyStoragePermissions(activity: Activity?) {
-        // Check if we have write permission
-        val permission = ActivityCompat.checkSelfPermission(
-            activity!!,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                activity,
-                PERMISSIONS_STORAGE,
-                REQUEST_EXTERNAL_STORAGE
-            )
-        }
-    }
+
+
 
     // 의류 정보 다이얼로그 -> 추후 커스텀으로 변경
     private fun startdialog(label: String) {
@@ -253,31 +254,63 @@ class MainActivity : AppCompatActivity() {
 
 
     // 화면 캡처 stack
-    open fun takeScreenshot() {
-        val now = Date()
-        DateFormat.format("yyyy-MM-dd_hh:mm:ss", now)
+    open fun takeScreenShot(view: View) {
+        val date = Date()
+        val format = DateFormat.format("MM-dd-yyyy-hh:mm:ss", date)
         try {
-            // image naming and path  to include sd card  appending name you choose for file
-            val mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg"
-            Log.d("pathpath", mPath)
-
-            // create bitmap screen capture
-            val v1 = window.decorView.rootView
-            v1.isDrawingCacheEnabled = true
-            val bitmap = Bitmap.createBitmap(v1.drawingCache)
-            v1.isDrawingCacheEnabled = false
-            val imageFile = File(mPath)
-            val outputStream = FileOutputStream(imageFile)
-            val quality = 100
-            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-            outputStream.flush()
-            outputStream.close()
-           //  openScreenshot(imageFile)
-        } catch (e: Throwable) {
-            // Several error may come out with file handling or DOM
+            val mainDir = File(
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES), "FilShare"
+            )
+            if (!mainDir.exists()) {
+                val mkdir = mainDir.mkdir()
+            }
+            val path = "$mainDir/TrendOceans-$format.jpeg"
+            view.isDrawingCacheEnabled = true
+            val bitmap = Bitmap.createBitmap(view.drawingCache)
+            view.isDrawingCacheEnabled = false
+            val imageFile = File(path)
+            val fileOutputStream = FileOutputStream(imageFile)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, fileOutputStream)
+            fileOutputStream.flush()
+            fileOutputStream.close()
+            shareScreenShot(imageFile)
+        } catch (e: IOException) {
             e.printStackTrace()
         }
     }
+
+
+    //Share ScreenShot
+    private fun shareScreenShot(imageFile: File) {
+
+        //Using sub-class of Content provider
+        /*val uri: Uri = FileProvider.getUriForFile(
+            this,
+            BuildConfig.APPLICATION_ID + "." + localClassName + ".provider",
+            imageFile
+        )
+
+         */
+
+        val uri: Uri = FileProvider.getUriForFile(Objects.requireNonNull(getApplicationContext()),
+            BuildConfig.APPLICATION_ID + ".provider", imageFile);
+        Log.d("file url", uri.toString())
+
+        //Explicit intent
+        val intent = Intent()
+        intent.action = Intent.ACTION_SEND
+        intent.type = "image/*"
+        intent.putExtra(Intent.EXTRA_TEXT, "This is Sample App to take ScreenShot")
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+
+        //It will show the application which are available to share Image; else Toast message will throw.
+        try {
+            this.startActivity(Intent.createChooser(intent, "Share With"))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, "No App Available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     // 화면 캡쳐하기
     @Throws(Exception::class)
@@ -302,11 +335,15 @@ class MainActivity : AppCompatActivity() {
         view.isDrawingCacheEnabled = false
     }
 
+
+
+
     private fun startCamera() {
         //Implementation of preview useCase
         val previewConfig = PreviewConfig.Builder().apply {
             setTargetResolution(Size(viewFinder.width, viewFinder.height))
         }.build()
+
 
         val preview = Preview(previewConfig)
 
@@ -318,6 +355,38 @@ class MainActivity : AppCompatActivity() {
             viewFinder.setSurfaceTexture(it.surfaceTexture)
             updateTransform()
         }
+
+        //사진찍기 설정 시작
+        val imageCaptureConfig = ImageCaptureConfig.Builder()
+            .apply {
+                setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
+            }.build()
+
+        val imageCapture = ImageCapture(imageCaptureConfig)
+        val file = File(externalMediaDirs.first(), "${System.currentTimeMillis()}.jpg")
+
+        findViewById<Button>(R.id.capture_button).setOnClickListener {
+            imageCapture.takePicture(file, executor, object : ImageCapture.OnImageSavedListener {
+                override fun onError(
+                    error: ImageCapture.ImageCaptureError,
+                    message: String,
+                    exc: Throwable?
+                ) {
+                    val msg = "Photo capture failed: $message"
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    Log.e("CameraXApp", msg)
+                    exc?.printStackTrace()
+                }
+
+                override fun onImageSaved(file: File) {
+                    val msg = "사진 경로 : ${file.absolutePath}"
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    Log.d("CameraXApp", msg)
+                }
+            })
+        }
+
+        //사진찍기 설정 끝
 
         //Implementation of preview useCase
         val analyzerConfig = ImageAnalysisConfig.Builder().apply {
@@ -343,9 +412,46 @@ class MainActivity : AppCompatActivity() {
         }
 
         //useCase is preview and image analysis
-        CameraX.bindToLifecycle(this, preview, analyzerUseCase)
+        CameraX.bindToLifecycle(this, preview, imageCapture, analyzerUseCase)
     }
 
+
+    /*
+    private fun takePhoto() {
+        val imageCapture = imageCapture ?: return
+
+        // 사진 저장 장소
+        val photoFile = File(
+            outputDirectory,
+            SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+                .format(System.currentTimeMillis()) + ".jpg"
+        )
+
+        // outputFile의 Configuration을 담당
+        val outputOptions = ImageCapture
+            .OutputFileOptions
+            .Builder(photoFile)
+            .build()
+
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
+                // 사진을 찍고 어떻게 저장할 지에 대한 구현부
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    val savedUri = Uri.fromFile(photoFile)
+                    val message = "Photo capture succeeded: $savedUri"
+                    Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, message)
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exception.message}", exception)
+                }
+            }
+        )
+    }
+     */
     private fun updateTransform() {
         val matrix = Matrix()
         val centerX = viewFinder.width / 2f
@@ -422,6 +528,23 @@ class MainActivity : AppCompatActivity() {
                 tts?.speak(strTTS, TextToSpeech.QUEUE_ADD, null)
             }
         })
+    }
+
+    // 저장소 권한 부여
+    fun verifyStoragePermissions(activity: Activity?) {
+        // Check if we have write permission
+        val permission = ActivityCompat.checkSelfPermission(
+            activity!!,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                activity,
+                PERMISSIONS_STORAGE,
+                REQUEST_EXTERNAL_STORAGE
+            )
+        }
     }
 
 }
