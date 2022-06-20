@@ -18,8 +18,6 @@ class ImageAnalyze(context: Context) : ImageAnalysis.Analyzer {
     private var lastAnalyzedTimestamp = 0L
     // 모바일 모듈 로딩
     private val resnet = LiteModuleLoader.load(getAssetFilePath(context, "deeplabv3_scripte.ptl"))
-    //var module = Module.load(assetFilePath(this, "model.ptl"))
-
 
     interface OnAnalyzeListener {
         fun getAnalyzeResult(inferredCategory: String, score: Float)

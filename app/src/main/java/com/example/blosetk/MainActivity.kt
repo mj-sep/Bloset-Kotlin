@@ -194,10 +194,10 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        // 20초에 1번씩 근처 탐지 작동
+        // 15초에 1번씩 근처 탐지 작동
         timerTask2 = timer(period = 1000) {
             time2++
-            val dividetime2 = time2 % 20
+            val dividetime2 = time2 % 15
             if(dividetime2 == 0) {
                 isSpeak = 0
             }
@@ -247,14 +247,14 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startCamera() {
-        //Implementation of preview useCase
+
         val previewConfig = PreviewConfig.Builder().apply {
             setTargetResolution(Size(viewFinder.width, viewFinder.height))
         }.build()
 
-
         val preview = Preview(previewConfig)
 
+        // 미리보기
         preview.setOnPreviewOutputUpdateListener {
             var parent = viewFinder.parent as ViewGroup
             parent.removeView(viewFinder)

@@ -20,9 +20,6 @@ class CustomDialogFail(context: Context) {
     private val context: Context = context
     lateinit var tts: TextToSpeech
 
-    private var time = 0
-    private var timerTask :Timer?=null
-
     interface ButtonClickListener {
         fun onClicked(status: Int)
     }
@@ -56,20 +53,10 @@ class CustomDialogFail(context: Context) {
         val closebtn: ImageButton = dlg.findViewById<View>(R.id.failure_close_btn) as ImageButton
         speakOut("인식에 실패했습니다. 다시 촬영하시겠습니까? 다시 촬영하시려면 화면을 짧게, 앱을 종료하시려면 길게 터치해주세요.")
 
-//        // 타이머 작동
-//        timerTask = timer(period = 10) {
-//            time++
-//            val sec = time / 100
-//            if(sec > 20) {
-//                timerTask?.cancel()
-//                // onbackListener.onBack(true)
-//                dlg.dismiss()
-//            }
-//        }
-
         // 짧게 터치하면 다이얼로그만 종료 -> 카메라로 돌아감
         failuredialog.setOnClickListener{
             onClickedListener.onClicked(1) // 다이얼로그 처리 완료
+            tts.stop()
             dlg.dismiss()
         }
 

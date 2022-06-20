@@ -67,7 +67,7 @@
         android:id="@+id/success_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="435dp"
+        android:layout_marginTop="440dp"
         android:fontFamily="@font/notosanskrmedium"
         android:gravity="center_horizontal"
         android:letterSpacing="0.04"
